@@ -39,7 +39,8 @@ form.i{display:inline}
 <h1 id="titulo" th:text="(${d.tipo.name()=='ORCAMENTO'} ? 'ORÇAMENTO' : 'RECIBO') + ' nº ' + ${d.numero}"></h1>
 
 <p>Data: <span th:text="${#temporals.format(d.data,'dd/MM/yyyy')}"></span><br>
-Cliente: <b th:text="${d.cliente}"></b> · Tel.: <span th:text="${d.telefone}"></span></p>
+   Cliente: <b th:text="${d.cliente}"></b> · Tel.: <span th:text="${d.telefone}"></span>
+   <span th:if="${d.cpfCnpj != null and !d.cpfCnpj.isBlank()}"><br>CPF/CNPJ: <span th:text="${d.cpfCnpj}"></span></span></p>
 
 <table id="itens">
   <tr><th>Descrição</th><th>Qtd</th><th class="r">Unitário</th><th class="r">Subtotal</th></tr>

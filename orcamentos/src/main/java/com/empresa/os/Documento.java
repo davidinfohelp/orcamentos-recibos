@@ -9,7 +9,7 @@ public class Documento {
   public enum Tipo { ORCAMENTO, RECIBO }
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
   @Enumerated(EnumType.STRING) private Tipo tipo = Tipo.ORCAMENTO;
-  private Integer numero; private String cliente; private String telefone; private String dono;
+  private Integer numero; private String cliente; private String telefone; private String cpfCnpj; private String dono;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) private LocalDate data = LocalDate.now();
   private String status = "Pendente"; private String formaPagamento;
   @Column(length = 2000) private String observacoes;
@@ -20,6 +20,7 @@ public class Documento {
   public Integer getNumero(){return numero;} public void setNumero(Integer n){numero=n;}
   public String getCliente(){return cliente;} public void setCliente(String c){cliente=c;}
   public String getTelefone(){return telefone;} public void setTelefone(String t){telefone=t;}
+  public String getCpfCnpj(){return cpfCnpj;} public void setCpfCnpj(String c){cpfCnpj=c;}
   public String getDono(){return dono;} public void setDono(String d){dono=d;}
   public LocalDate getData(){return data;} public void setData(LocalDate d){data=d;}
   public String getStatus(){return status;} public void setStatus(String s){status=s;}

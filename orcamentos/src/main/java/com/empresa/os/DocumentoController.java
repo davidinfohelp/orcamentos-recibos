@@ -21,7 +21,8 @@ public class DocumentoController {
     String busca = q==null ? "" : q.toLowerCase();
     List<Documento> docs = repo.findByDonoOrderByIdDesc(p.getName()).stream()
       .filter(d -> tipo==null || tipo.isBlank() || d.getTipo().name().equals(tipo))
-      .filter(d -> busca.isBlank() || (d.getCliente()!=null && d.getCliente().toLowerCase().contains(busca)) || String.valueOf(d.getNumero()).equals(busca))
+      .filter(d -> busca.isBlank() || (d.getCliente()!=null && d.getCliente().toLowerCase().contains(busca)) || String.valueOf(d.getNumero()).equals(busca)
+                   || (d.getCpfCnpj()!=null && d.getCpfCnpj().replaceAll("\\D","").contains(busca.replaceAll("\\D","x"))))
       .collect(Collectors.toList());
     m.addAttribute("docs", docs); m.addAttribute("tipo", tipo); m.addAttribute("q", q);
     return "lista";
@@ -55,7 +56,7 @@ public class DocumentoController {
   public String converter(@PathVariable Long id, Principal p){
     Documento o = meu(id, p); Documento r = new Documento();
     r.setTipo(Documento.Tipo.RECIBO); r.setStatus("Emitido"); r.setDono(p.getName());
-    r.setCliente(o.getCliente()); r.setTelefone(o.getTelefone());
+    r.setCliente(o.getCliente()); r.setTelefone(o.getTelefone()); r.setCpfCnpj(o.getCpfCnpj());
     r.setObservacoes("Referente ao orçamento nº " + o.getNumero()); r.setData(LocalDate.now());
     for (Item i : o.getItens()) { Item c = new Item(); c.setDescricao(i.getDescricao()); c.setQuantidade(i.getQuantidade()); c.setValorUnitario(i.getValorUnitario()); r.getItens().add(c); }
     r.setNumero(repo.maxNumero(Documento.Tipo.RECIBO, p.getName())+1); o.setStatus("Aprovado"); repo.save(o);
