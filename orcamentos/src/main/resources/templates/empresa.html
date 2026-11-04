@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minha empresa</title>
+<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="wrap">
+  <div class="topo">
+    <h1>Minha empresa</h1>
+    <a class="btn s" th:href="@{/}">← Voltar ao painel</a>
+  </div>
+  <p class="mut" style="margin-top:0">Estes dados aparecem no cabeçalho dos seus orçamentos e recibos. Só a sua conta enxerga e usa essas informações.</p>
+
+  <p class="ok-msg" th:if="${param.ok}">Dados da empresa salvos.</p>
+  <p class="e" th:if="${erro}" th:text="${erro}"></p>
+
+  <form th:action="@{/empresa}" method="post">
+    <div class="card">
+      <div class="g">
+        <div><label>Nome da empresa *</label><input id="nome" name="nome" th:value="${e.nome}" maxlength="120" required></div>
+        <div><label>CPF / CNPJ</label><input id="cpfCnpj" name="cpfCnpj" th:value="${e.cpfCnpj}" maxlength="30"></div>
+        <div><label>Telefone / WhatsApp</label><input id="telefone" name="telefone" th:value="${e.telefone}" maxlength="30"></div>
+        <div><label>E-mail</label><input id="email" name="email" type="email" th:value="${e.email}" maxlength="120"></div>
+        <div><label>Endereço</label><input id="endereco" name="endereco" th:value="${e.endereco}" maxlength="200"></div>
+        <div><label>Cor dos documentos</label><input id="cor" name="cor" type="color" th:value="${e.cor}"></div>
+      </div>
+      <div style="margin-top:14px">
+        <label>Logo (PNG, JPG ou WEBP)</label>
+        <input id="arq" type="file" accept="image/png,image/jpeg,image/webp">
+        <input id="logo" name="logo" type="hidden" value="">
+        <label style="margin-top:10px;text-transform:none;letter-spacing:0"><input id="removerLogo" name="removerLogo" type="checkbox" value="true"> Remover a logo atual</label>
+      </div>
+    </div>
+
+    <h2 style="margin-top:18px">Pré-visualização do cabeçalho</h2>
+    <div class="papel" id="pv" th:style="'--cor:' + ${e.cor}">
+      <div class="cab" style="margin-bottom:0">
+        <img id="pvLogo" th:if="${e.logo != null}" th:src="${e.logo}" alt="Logo">
+        <img id="pvLogo" th:if="${e.logo == null}" alt="Logo" style="display:none">
+        <div class="emp"><b id="pvNome" th:text="${#strings.isEmpty(e.nome)} ? 'Nome da sua empresa' : ${e.nome}"></b><span id="pvDet"></span></div>
+      </div>
+    </div>
+
+    <p><button>Salvar empresa</button></p>
+  </form>
+</div>
+<script>
+(function () {
+  function el(id) { return document.getElementById(id); }
+  var cor = el('cor'), pv = el('pv'), logo = el('logo'), arq = el('arq'), rem = el('removerLogo'), img = el('pvLogo');
+  var campos = ['nome', 'cpfCnpj', 'telefone', 'email', 'endereco'];
+
+  function atualizar() {
+    pv.style.setProperty('--cor', cor.value);
+    el('pvNome').textContent = el('nome').value.trim() || 'Nome da sua empresa';
+    var partes = [];
+    for (var i = 1; i < campos.length; i++) { var v = el(campos[i]).value.trim(); if (v) partes.push(v); }
+    el('pvDet').textContent = partes.join(' · ');
+  }
+  campos.forEach(function (id) { el(id).addEventListener('input', atualizar); });
+  cor.addEventListener('input', atualizar);
+  atualizar();
+
+  arq.addEventListener('change', function () {
+    var f = arq.files[0];
+    if (!f) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(f.type)) { alert('Use uma imagem PNG, JPG ou WEBP.'); arq.value = ''; return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var k = Math.min(1, 400 / Math.max(im.width, im.height));
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(im.width * k));
+        c.height = Math.max(1, Math.round(im.height * k));
+        var x = c.getContext('2d');
+        x.drawImage(im, 0, 0, c.width, c.height);
+        var out = c.toDataURL('image/png');
+        if (out.length > 300000) {
+          x.globalCompositeOperation = 'destination-over';
+          x.fillStyle = '#ffffff';
+          x.fillRect(0, 0, c.width, c.height);
+          out = c.toDataURL('image/jpeg', 0.85);
+        }
+        if (out.length > 340000) { alert('Imagem muito pesada. Use uma logo menor.'); arq.value = ''; return; }
+        logo.value = out; img.src = out; img.style.display = ''; rem.checked = false;
+      };
+      im.onerror = function () { alert('Não foi possível ler essa imagem.'); arq.value = ''; };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  });
+  rem.addEventListener('change', function () {
+    if (rem.checked) { logo.value = ''; img.style.display = 'none'; arq.value = ''; }
+  });
+})();
+</script>
+</body>
+</html>

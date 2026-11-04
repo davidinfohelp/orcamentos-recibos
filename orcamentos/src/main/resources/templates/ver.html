@@ -4,22 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Documento</title>
-<style>
-body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:16px;color:#1b1f24}
-h1{font-size:22px}
-table{width:100%;border-collapse:collapse;margin:12px 0}
-td,th{border:1px solid #ccc;padding:8px;text-align:left;vertical-align:top}
-th{background:#f2f4f7}
-input{padding:8px;border:1px solid #bbb;border-radius:6px;font:inherit;box-sizing:border-box}
-button,.btn{padding:8px 14px;border:0;border-radius:6px;background:#1f6feb;color:#fff;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
-.s{background:#fff;color:#1b1f24;border:1px solid #bbb;padding:7px 12px;font-size:14px}
-form.i{display:inline}
-.r{text-align:right}
-.no{margin:8px 0}
-@media print{.no{display:none}}
-</style>
+<link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body th:data-tel="${d.telefone}" th:data-cliente="${d.cliente}">
+<body th:data-tel="${d.telefone}" th:data-cliente="${d.cliente}" th:data-empresa="${empresa.nome}">
+<div class="wrap">
 
 <div class="no">
   <a class="btn s" th:href="@{/}">← Voltar</a>
@@ -30,45 +18,66 @@ form.i{display:inline}
 </div>
 
 <div class="no">
-  <input id="email" type="email" placeholder="E-mail do cliente" style="width:240px">
+  <input id="email" type="email" placeholder="E-mail do cliente" style="width:240px;display:inline-block">
   <a id="lnkEmail" class="btn s" href="#">Enviar por e-mail</a>
   <a id="lnkZap" class="btn s" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
 </div>
 
-<img th:src="@{/logo.png}" alt="" style="max-height:80px;margin-bottom:8px" onerror="this.style.display='none'">
-<h1 id="titulo" th:text="(${d.tipo.name()=='ORCAMENTO'} ? 'ORÇAMENTO' : 'RECIBO') + ' nº ' + ${d.numero}"></h1>
+<div class="aviso no" th:if="${#strings.isEmpty(empresa.nome)}">
+  <span>Sua empresa ainda não está configurada, então o cabeçalho do documento fica em branco.</span>
+  <a class="btn s" th:href="@{/empresa}">Configurar empresa</a>
+</div>
 
-<p>Data: <span th:text="${#temporals.format(d.data,'dd/MM/yyyy')}"></span><br>
-   Cliente: <b th:text="${d.cliente}"></b> · Tel.: <span th:text="${d.telefone}"></span>
-   <span th:if="${d.cpfCnpj != null and !d.cpfCnpj.isBlank()}"><br>CPF/CNPJ: <span th:text="${d.cpfCnpj}"></span></span></p>
+<div class="papel" th:style="'--cor:' + ${empresa.cor}">
+  <div class="cab">
+    <img th:if="${empresa.logo != null}" th:src="${empresa.logo}" alt="Logo da empresa">
+    <div th:if="${empresa.logo == null}"></div>
+    <div class="emp">
+      <b th:if="${!#strings.isEmpty(empresa.nome)}" th:text="${empresa.nome}"></b>
+      <span th:if="${!#strings.isEmpty(empresa.cpfCnpj)}" th:text="'CPF/CNPJ: ' + ${empresa.cpfCnpj}"></span><br th:if="${!#strings.isEmpty(empresa.cpfCnpj)}">
+      <span th:if="${!#strings.isEmpty(empresa.telefone)}" th:text="${empresa.telefone}"></span><span th:if="${!#strings.isEmpty(empresa.telefone) and !#strings.isEmpty(empresa.email)}"> · </span><span th:if="${!#strings.isEmpty(empresa.email)}" th:text="${empresa.email}"></span><br th:if="${!#strings.isEmpty(empresa.telefone) or !#strings.isEmpty(empresa.email)}">
+      <span th:if="${!#strings.isEmpty(empresa.endereco)}" th:text="${empresa.endereco}"></span>
+    </div>
+  </div>
 
-<table id="itens">
-  <tr><th>Descrição</th><th>Qtd</th><th class="r">Unitário</th><th class="r">Subtotal</th></tr>
-  <tr th:each="i : ${d.itens}">
-    <td th:text="${i.descricao}"></td>
-    <td th:text="${i.quantidade}"></td>
-    <td class="r" th:text="${#numbers.formatDecimal(i.valorUnitario,1,'POINT',2,'COMMA')}"></td>
-    <td class="r" th:text="${#numbers.formatDecimal(i.subtotal(),1,'POINT',2,'COMMA')}"></td>
-  </tr>
-  <tr><td colspan="3" class="r"><b>Total</b></td>
-      <td class="r"><b th:text="'R$ ' + ${#numbers.formatDecimal(d.total(),1,'POINT',2,'COMMA')}"></b></td></tr>
-</table>
+  <h1 id="titulo" th:text="(${d.tipo.name()=='ORCAMENTO'} ? 'ORÇAMENTO' : 'RECIBO') + ' nº ' + ${d.numero}"></h1>
 
-<p th:if="${d.tipo.name()=='RECIBO'}">Recebi de <b th:text="${d.cliente}"></b> a quantia de
-  <b th:text="'R$ ' + ${#numbers.formatDecimal(d.total(),1,'POINT',2,'COMMA')}"></b><span th:if="${d.formaPagamento!=null and !d.formaPagamento.isBlank()}" th:text="', via ' + ${d.formaPagamento}"></span>, referente aos itens acima.</p>
-<p th:if="${d.tipo.name()=='ORCAMENTO'}">Orçamento válido por 15 dias.</p>
-<p th:text="${d.observacoes}"></p>
-<p style="margin-top:60px;border-top:1px solid #000;width:300px;padding-top:4px;text-align:center">Assinatura</p>
-<p class="no" style="color:#999;font-size:11px">versao-3</p>
+  <p>Data: <span th:text="${#temporals.format(d.data,'dd/MM/yyyy')}"></span><br>
+     Cliente: <b th:text="${d.cliente}"></b> · Tel.: <span th:text="${d.telefone}"></span>
+     <span th:if="${d.cpfCnpj != null and !d.cpfCnpj.isBlank()}"><br>CPF/CNPJ: <span th:text="${d.cpfCnpj}"></span></span></p>
+
+  <table id="itens">
+    <tr><th>Descrição</th><th>Tipo</th><th>Qtd</th><th class="r">Unitário</th><th class="r">Subtotal</th></tr>
+    <tr th:each="i : ${d.itens}">
+      <td th:text="${i.descricao}"></td>
+      <td><span class="badge" th:classappend="${i.ehItem()} ? 'item' : 'serv'" th:text="${i.rotulo()}"></span></td>
+      <td th:text="${i.quantidade}"></td>
+      <td class="r" th:text="${#numbers.formatDecimal(i.valorUnitario,1,'POINT',2,'COMMA')}"></td>
+      <td class="r" th:text="${#numbers.formatDecimal(i.subtotal(),1,'POINT',2,'COMMA')}"></td>
+    </tr>
+    <tr><td colspan="4" class="r"><b>Total</b></td>
+        <td class="r"><b th:text="'R$ ' + ${#numbers.formatDecimal(d.total(),1,'POINT',2,'COMMA')}"></b></td></tr>
+  </table>
+
+  <p th:if="${d.tipo.name()=='RECIBO'}">Recebi de <b th:text="${d.cliente}"></b> a quantia de
+    <b th:text="'R$ ' + ${#numbers.formatDecimal(d.total(),1,'POINT',2,'COMMA')}"></b><span th:if="${d.formaPagamento!=null and !d.formaPagamento.isBlank()}" th:text="', via ' + ${d.formaPagamento}"></span><span th:text="', referente ' + ${d.referente()} + '.'"></span></p>
+  <p th:if="${d.tipo.name()=='ORCAMENTO'}">Orçamento válido por 15 dias.</p>
+  <p th:text="${d.observacoes}"></p>
+  <p class="ass">Assinatura<span th:if="${!#strings.isEmpty(empresa.nome)}" th:text="' — ' + ${empresa.nome}"></span></p>
+</div>
+
+<p class="no" style="color:#667;font-size:11px">versao-4</p>
+</div>
 
 <script>
 (function () {
   var body = document.body;
   var tel = (body.getAttribute('data-tel') || '').replace(/\D/g, '');
   var cliente = body.getAttribute('data-cliente') || '';
+  var empresa = body.getAttribute('data-empresa') || '';
   var titulo = document.getElementById('titulo').innerText;
 
-  var texto = 'Olá, ' + cliente + '! Segue o documento:\n\n' + titulo + '\n';
+  var texto = 'Olá, ' + cliente + '! Segue o documento' + (empresa ? ' da ' + empresa : '') + ':\n\n' + titulo + '\n';
   var linhas = document.querySelectorAll('#itens tr');
   for (var i = 1; i < linhas.length; i++) {
     var cels = linhas[i].cells, partes = [];

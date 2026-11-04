@@ -3,71 +3,85 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Orçamentos e Recibos</title>
-<style>
-body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:16px;color:#1b1f24}
-h1{font-size:22px}
-table{width:100%;border-collapse:collapse;margin:12px 0}
-td,th{border:1px solid #ccc;padding:8px;text-align:left;vertical-align:top}
-th{background:#f2f4f7}
-input,select{padding:8px;border:1px solid #bbb;border-radius:6px;font:inherit;box-sizing:border-box}
-button,.btn{padding:8px 14px;border:0;border-radius:6px;background:#1f6feb;color:#fff;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
-.s{background:#fff;color:#1b1f24;border:1px solid #bbb;padding:5px 10px;font-size:13px}
-.d{color:#cf222e}
-form.i{display:inline}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.bar input,.bar select{flex:1}
-.r{text-align:right}
-</style>
+<title>Painel — Orçamentos e Recibos</title>
+<link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
-<h1>Orçamentos e Recibos</h1>
+<div class="wrap">
+  <div class="topo">
+    <a class="marca" th:href="@{/}">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#gm)"/><path d="M10 8h9l4 4v12H10z" fill="none" stroke="#04121c" stroke-width="2" stroke-linejoin="round"/><path d="M13 18l2.2 2.2L20 15.5" fill="none" stroke="#04121c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Orçamentos e Recibos
+    </a>
+    <div class="acoes">
+      <a class="chip" th:href="@{/empresa}" th:if="${!#strings.isEmpty(empresa.nome)}" style="text-decoration:none">Empresa: <b th:text="${empresa.nome}"></b></a>
+      <a class="btn s" th:href="@{/empresa}">Minha empresa</a>
+      <form class="i" th:action="@{/logout}" method="post"><button class="s">Sair</button></form>
+    </div>
+  </div>
 
-<div class="bar">
-  <a class="btn" th:href="@{/novo(tipo=ORCAMENTO)}">+ Novo orçamento</a>
-  <a class="btn" th:href="@{/novo(tipo=RECIBO)}">+ Novo recibo</a>
-  <form class="i" th:action="@{/logout}" method="post"><button class="s">Sair</button></form>
+  <div class="aviso" th:if="${#strings.isEmpty(empresa.nome)}">
+    <span><b>Configure a sua empresa.</b> Cadastre nome, logo e contato para que apareçam nos seus orçamentos e recibos.</span>
+    <a class="btn" th:href="@{/empresa}">Configurar agora</a>
+  </div>
+
+  <div class="acoes" style="justify-content:space-between;margin-bottom:12px">
+    <h1>Painel</h1>
+    <div class="acoes">
+      <a class="btn" th:href="@{/novo(tipo=ORCAMENTO)}">+ Novo orçamento</a>
+      <a class="btn" th:href="@{/novo(tipo=RECIBO)}">+ Novo recibo</a>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><small>Orçamentos</small><b th:text="${qOrc}"></b></div>
+    <div class="stat"><small>Recibos</small><b th:text="${qRec}"></b></div>
+    <div class="stat"><small>Total recebido</small><b th:text="'R$ ' + ${#numbers.formatDecimal(recebido,1,'POINT',2,'COMMA')}"></b></div>
+    <div class="stat"><small>Orçamentos pendentes</small><b th:text="'R$ ' + ${#numbers.formatDecimal(pendente,1,'POINT',2,'COMMA')}"></b></div>
+  </div>
+
+  <form class="bar" method="get" th:action="@{/}">
+    <input name="q" th:value="${q}" placeholder="Buscar por cliente, nº ou CPF/CNPJ">
+    <select name="tipo">
+      <option value="">Todos</option>
+      <option value="ORCAMENTO" th:selected="${tipo=='ORCAMENTO'}">Orçamentos</option>
+      <option value="RECIBO" th:selected="${tipo=='RECIBO'}">Recibos</option>
+    </select>
+    <button>Filtrar</button>
+  </form>
+
+  <div class="rolar">
+    <table>
+      <tr><th>Tipo / Nº</th><th>Cliente</th><th>Data</th><th class="r">Total</th><th>Status</th><th>Ações</th></tr>
+      <tr th:each="d : ${docs}">
+        <td th:text="${d.tipo.name()=='ORCAMENTO' ? 'Orçamento' : 'Recibo'} + ' #' + ${d.numero}"></td>
+        <td th:text="${d.cliente}"></td>
+        <td th:text="${#temporals.format(d.data,'dd/MM/yyyy')}"></td>
+        <td class="r" th:text="'R$ ' + ${#numbers.formatDecimal(d.total(),1,'POINT',2,'COMMA')}"></td>
+        <td>
+          <form class="i" th:if="${d.tipo.name()=='ORCAMENTO'}" th:action="@{/status/{id}(id=${d.id})}" method="post">
+            <select name="status" onchange="this.form.submit()">
+              <option th:selected="${d.status=='Pendente'}">Pendente</option>
+              <option th:selected="${d.status=='Aprovado'}">Aprovado</option>
+              <option th:selected="${d.status=='Recusado'}">Recusado</option>
+            </select>
+          </form>
+          <span class="badge" th:if="${d.tipo.name()=='RECIBO'}" th:text="${d.status}"></span>
+        </td>
+        <td style="white-space:nowrap">
+          <a class="btn s" th:href="@{/ver/{id}(id=${d.id})}">Abrir / imprimir</a>
+          <details>
+            <summary class="btn s d">Excluir</summary>
+            <form class="i" th:action="@{/excluir/{id}(id=${d.id})}" method="post">
+              <button class="s d">Confirmar exclusão</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="mut" th:if="${docs.isEmpty()}">Nenhum documento encontrado.</p>
 </div>
-
-<form class="bar" method="get" th:action="@{/}">
-  <input name="q" th:value="${q}" placeholder="Cliente ou nº">
-  <select name="tipo">
-    <option value="">Todos</option>
-    <option value="ORCAMENTO" th:selected="${tipo=='ORCAMENTO'}">Orçamentos</option>
-    <option value="RECIBO" th:selected="${tipo=='RECIBO'}">Recibos</option>
-  </select>
-  <button>Filtrar</button>
-</form>
-
-<table>
-  <tr><th>Tipo / Nº</th><th>Cliente</th><th>Data</th><th>Total</th><th>Status</th><th>Ações</th></tr>
-  <tr th:each="d : ${docs}">
-    <td th:text="${d.tipo.name()=='ORCAMENTO' ? 'Orçamento' : 'Recibo'} + ' #' + ${d.numero}"></td>
-    <td th:text="${d.cliente}"></td>
-    <td th:text="${#temporals.format(d.data,'dd/MM/yyyy')}"></td>
-    <td class="r" th:text="'R$ ' + ${#numbers.formatDecimal(d.total(),1,'POINT',2,'COMMA')}"></td>
-    <td>
-      <form class="i" th:if="${d.tipo.name()=='ORCAMENTO'}" th:action="@{/status/{id}(id=${d.id})}" method="post">
-        <select name="status" onchange="this.form.submit()">
-          <option th:selected="${d.status=='Pendente'}">Pendente</option>
-          <option th:selected="${d.status=='Aprovado'}">Aprovado</option>
-          <option th:selected="${d.status=='Recusado'}">Recusado</option>
-        </select>
-      </form>
-      <span th:if="${d.tipo.name()=='RECIBO'}" th:text="${d.status}"></span>
-    </td>
-    <td>
-      <a class="btn s" th:href="@{/ver/{id}(id=${d.id})}">Abrir / imprimir</a>
-      <details style="display:inline">
-        <summary class="btn s d">Excluir</summary>
-        <form class="i" th:action="@{/excluir/{id}(id=${d.id})}" method="post">
-          <button class="s d">Confirmar exclusão</button>
-        </form>
-      </details>
-    </td>
-  </tr>
-</table>
-
-<p th:if="${docs.isEmpty()}">Nenhum documento encontrado.</p>
 </body>
 </html>

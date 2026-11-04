@@ -3,32 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Criar conta</title>
-<style>
-body{font-family:system-ui,sans-serif;max-width:380px;margin:0 auto;padding:24px 16px;color:#1b1f24}
-h1{font-size:22px}
-label{display:block;font-size:13px;color:#555;margin:12px 0 4px}
-input{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;font:inherit;font-size:16px;box-sizing:border-box}
-button{width:100%;margin-top:16px;padding:11px;border:0;border-radius:6px;background:#1f6feb;color:#fff;font:inherit;cursor:pointer}
-.e{color:#cf222e;margin-top:12px}
-a{color:#1f6feb}
-</style>
+<title>Criar conta — Orçamentos e Recibos</title>
+<link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
-<img th:src="@{/logo.png}" alt="" style="max-height:70px;margin-bottom:8px" onerror="this.style.display='none'">
-<h1>Criar conta</h1>
-<p class="e" th:if="${erro}" th:text="${erro}"></p>
-<form th:action="@{/registro}" method="post">
-  <label>Código de convite</label>
-  <input name="codigo" autocomplete="off" required>
-  <label>Usuário (letras minúsculas, números, ponto, hífen ou _)</label>
-  <input name="username" th:value="${username}" autocomplete="username" required>
-  <label>Senha (mínimo 8 caracteres)</label>
-  <input name="password" type="password" autocomplete="new-password" required>
-  <label>Repita a senha</label>
-  <input name="confirma" type="password" autocomplete="new-password" required>
-  <button>Criar conta</button>
-</form>
-<p>Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+<div class="wrap">
+  <div class="auth">
+    <p><a class="marca" th:href="@{/}" style="color:var(--txt)">← Orçamentos e Recibos</a></p>
+    <div class="card">
+      <h1>Criar conta</h1>
+      <p class="e" th:if="${erro}" th:text="${erro}"></p>
+      <form th:action="@{/registro}" method="post">
+        <label>Código de convite</label>
+        <input name="codigo" autocomplete="off" required>
+        <label>Usuário (minúsculas, números, ponto, hífen ou _)</label>
+        <input name="username" th:value="${username}" autocomplete="username" required>
+        <label>Senha (mínimo 8 caracteres)</label>
+        <input name="password" type="password" autocomplete="new-password" required>
+        <label>Repita a senha</label>
+        <input name="confirma" type="password" autocomplete="new-password" required>
+        <button>Criar conta</button>
+      </form>
+      <p class="mut">Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+    </div>
+  </div>
+</div>
 </body>
 </html>

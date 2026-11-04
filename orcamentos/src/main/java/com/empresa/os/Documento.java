@@ -14,6 +14,11 @@ public class Documento {
   private String status = "Pendente"; private String formaPagamento;
   @Column(length = 2000) private String observacoes;
   @ElementCollection(fetch = FetchType.EAGER) private List<Item> itens = new ArrayList<>();
+  public String referente(){
+    boolean s=false, p=false;
+    for (Item i : itens) { if (i.ehItem()) p=true; else s=true; }
+    return (s&&p) ? "aos serviços e itens acima" : p ? "aos itens acima" : "aos serviços acima";
+  }
   public BigDecimal total(){ return itens.stream().map(Item::subtotal).reduce(BigDecimal.ZERO, BigDecimal::add); }
   public Long getId(){return id;} public void setId(Long i){id=i;}
   public Tipo getTipo(){return tipo;} public void setTipo(Tipo t){tipo=t;}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orçamentos e Recibos — documentos profissionais com a sua marca</title>
+<meta name="description" content="Emita orçamentos e recibos com a logo e os dados da sua empresa, separe serviços de itens e envie por WhatsApp ou e-mail.">
+<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="wrap">
+  <div class="topo">
+    <a class="marca" th:href="@{/}">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#gm)"/><path d="M10 8h9l4 4v12H10z" fill="none" stroke="#04121c" stroke-width="2" stroke-linejoin="round"/><path d="M13 18l2.2 2.2L20 15.5" fill="none" stroke="#04121c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Orçamentos e Recibos
+    </a>
+    <div class="acoes">
+      <a class="btn s" th:href="@{/login}">Entrar</a>
+      <a class="btn" th:href="@{/registro}">Criar conta</a>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <span class="tag">Rápido · Profissional · Seu</span>
+      <h1>Orçamentos e recibos com a <span class="grad">sua marca</span>, prontos em segundos.</h1>
+      <p class="sub">Cadastre a sua empresa uma vez e emita documentos com logo, cores e dados próprios. Separe serviços de itens vendidos e envie por WhatsApp ou e-mail.</p>
+      <div class="cta">
+        <a class="btn grande" th:href="@{/registro}">Criar minha conta</a>
+        <a class="btn s grande" th:href="@{/login}">Já tenho conta</a>
+      </div>
+      <p class="mut" style="margin-top:14px;font-size:13px">O cadastro é feito com um código de convite.</p>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="folha">
+        <div class="cab"><div style="display:flex;gap:10px;align-items:center"><div class="logo"></div><b>Sua Empresa</b></div><span style="color:#6b7280">RECIBO nº 128</span></div>
+        <div class="linha"><span>Instalação de rede <em>Serviço</em></span><span>R$ 350,00</span></div>
+        <div class="linha"><span>Roteador Wi-Fi 6 <em class="i">Item</em></span><span>R$ 289,90</span></div>
+        <div class="linha"><span>Cabo de rede 10 m <em class="i">Item</em></span><span>R$ 24,00</span></div>
+        <div class="tot"><span>Total</span><span>R$ 663,90</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grade">
+    <div class="rec"><div class="ic">1</div><h3>Sua marca no documento</h3><p>Logo, cor e dados da empresa no cabeçalho de cada orçamento e recibo.</p></div>
+    <div class="rec"><div class="ic">2</div><h3>Serviço ou item</h3><p>Em cada linha você escolhe se foi um serviço prestado ou um item vendido.</p></div>
+    <div class="rec"><div class="ic">3</div><h3>Orçamento vira recibo</h3><p>Aprovou? Converta em recibo com um clique, sem digitar tudo de novo.</p></div>
+    <div class="rec"><div class="ic">4</div><h3>WhatsApp e e-mail</h3><p>Envie o documento ao cliente direto do celular ou imprima em PDF.</p></div>
+    <div class="rec"><div class="ic">5</div><h3>Dados só seus</h3><p>Cada conta enxerga apenas a própria empresa e os próprios documentos.</p></div>
+    <div class="rec"><div class="ic">6</div><h3>Funciona no celular</h3><p>Layout adaptado para telas pequenas, para emitir de onde estiver.</p></div>
+  </section>
+
+  <h2>Como funciona</h2>
+  <section class="passos">
+    <div><b>Crie sua conta</b><span>Use o código de convite que você recebeu.</span></div>
+    <div><b>Cadastre sua empresa</b><span>Nome, logo, contato e a cor dos seus documentos.</span></div>
+    <div><b>Emita e envie</b><span>Preencha, salve e mande para o cliente.</span></div>
+  </section>
+
+  <div class="rodape"><span>Orçamentos e Recibos</span><span>Seus dados ficam separados dos de outras contas.</span></div>
+</div>
+</body>
+</html>
