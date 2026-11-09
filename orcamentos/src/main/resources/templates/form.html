@@ -18,13 +18,22 @@
     <input type="hidden" th:field="*{tipo}">
     <input type="hidden" th:field="*{status}">
     <div class="card">
+      <div class="busca-cli">
+        <label for="buscaCli">Buscar cliente salvo</label>
+        <input id="buscaCli" autocomplete="off" placeholder="Digite nome ou CPF/CNPJ do cliente cadastrado...">
+        <div class="sug" id="sugCli" hidden></div>
+      </div>
       <div class="g">
         <div><label>Cliente *</label><input th:field="*{cliente}" required></div>
-        <div><label>CPF / CNPJ</label><input th:field="*{cpfCnpj}" inputmode="numeric" maxlength="18" placeholder="Somente números"></div>
+        <div><label>CPF / CNPJ</label>
+          <div class="linha"><input th:field="*{cpfCnpj}" inputmode="numeric" maxlength="18" placeholder="Somente números">
+          <button type="button" id="btnCnpj" class="s" title="Buscar dados do CNPJ na Receita">Buscar</button></div></div>
         <div><label>Telefone</label><input th:field="*{telefone}"></div>
         <div><label>Data</label><input type="date" th:field="*{data}"></div>
         <div th:if="${d.tipo.name()=='RECIBO'}"><label>Forma de pagamento</label><input th:field="*{formaPagamento}" placeholder="Pix, dinheiro, cartão..."></div>
       </div>
+      <p class="mut" id="msgCnpj" style="margin:8px 0 0;font-size:13px" hidden></p>
+      <label style="margin-top:12px;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" name="salvarCliente" value="true" checked> Salvar este cliente na minha base de clientes</label>
     </div>
 
     <div class="rolar">
@@ -50,6 +59,7 @@
     <p><button>Salvar</button> <a class="btn s" th:href="@{/}">Cancelar</a></p>
   </form>
 </div>
+<script th:src="@{/js/cpfcnpj.js}"></script>
 <script>
 (function () {
   var f = document.getElementById('docForm');
@@ -69,16 +79,56 @@
   calc();
 
   var c = document.getElementById('cpfCnpj');
-  c.addEventListener('input', function () {
-    var v = c.value.replace(/\D/g, '').slice(0, 14), r;
-    if (v.length <= 11) {
-      r = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    } else {
-      r = v.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-           .replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
-    }
-    c.value = r;
+  CpfCnpj.mascara(c);
+
+  // Busca de CNPJ na Receita
+  var btn = document.getElementById('btnCnpj'), msg = document.getElementById('msgCnpj');
+  function aviso(cls, txt) { msg.hidden = false; msg.className = cls; msg.textContent = txt; }
+  btn.addEventListener('click', function () {
+    aviso('mut', 'Consultando CNPJ...'); btn.disabled = true;
+    CpfCnpj.consultar(c.value).then(function (d) {
+      f.elements['cliente'].value = d.nome || f.elements['cliente'].value;
+      if (d.telefone && !f.elements['telefone'].value) f.elements['telefone'].value = d.telefone;
+      c.value = d.cpfCnpj || c.value;
+      aviso(d.situacao && d.situacao.toUpperCase() !== 'ATIVA' ? 'e' : 'ok',
+            'Encontrado: ' + d.nome + (d.situacao ? ' (situação: ' + d.situacao + ')' : ''));
+    }).catch(function (e) { aviso('e', e.message); }).finally(function () { btn.disabled = false; });
   });
+
+  // Busca na base de clientes
+  var busca = document.getElementById('buscaCli'), sug = document.getElementById('sugCli'), tmr;
+  function fechar() { sug.hidden = true; sug.innerHTML = ''; }
+  function escolher(cli) {
+    f.elements['cliente'].value = cli.nome;
+    c.value = cli.cpfCnpj || '';
+    f.elements['telefone'].value = cli.telefone || '';
+    busca.value = ''; fechar();
+    aviso('ok', 'Cliente selecionado: ' + cli.nome);
+  }
+  busca.addEventListener('input', function () {
+    clearTimeout(tmr);
+    var q = busca.value.trim();
+    if (q.length < 2) { fechar(); return; }
+    tmr = setTimeout(function () {
+      fetch('/api/clientes?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (lista) {
+          sug.innerHTML = '';
+          if (!lista.length) { var v = document.createElement('div'); v.className = 'vazio'; v.textContent = 'Nenhum cliente encontrado.'; sug.appendChild(v); }
+          lista.forEach(function (cli) {
+            var b = document.createElement('button'); b.type = 'button';
+            var n = document.createElement('div'); n.textContent = cli.nome + (cli.nomeFantasia ? ' — ' + cli.nomeFantasia : '');
+            var s2 = document.createElement('small'); s2.textContent = [cli.cpfCnpj, cli.telefone].filter(Boolean).join(' · ');
+            b.appendChild(n); b.appendChild(s2);
+            b.addEventListener('click', function () { escolher(cli); });
+            sug.appendChild(b);
+          });
+          sug.hidden = false;
+        });
+    }, 250);
+  });
+  busca.addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); if (e.key === 'Escape') fechar(); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.busca-cli')) fechar(); });
 })();
 </script>
 </body>

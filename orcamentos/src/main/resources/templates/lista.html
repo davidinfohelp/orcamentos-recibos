@@ -15,6 +15,7 @@
     </a>
     <div class="acoes">
       <a class="chip" th:href="@{/empresa}" th:if="${!#strings.isEmpty(empresa.nome)}" style="text-decoration:none">Empresa: <b th:text="${empresa.nome}"></b></a>
+      <a class="btn s" th:href="@{/clientes}">Clientes</a>
       <a class="btn s" th:href="@{/empresa}">Minha empresa</a>
       <form class="i" th:action="@{/logout}" method="post"><button class="s">Sair</button></form>
     </div>

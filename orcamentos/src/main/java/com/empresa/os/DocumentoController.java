@@ -11,8 +11,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 @Controller
 public class DocumentoController {
-  private final DocumentoRepository repo; private final EmpresaRepository empresas;
-  public DocumentoController(DocumentoRepository r, EmpresaRepository e){ repo=r; empresas=e; }
+  private final DocumentoRepository repo; private final EmpresaRepository empresas; private final ClienteRepository clientes;
+  public DocumentoController(DocumentoRepository r, EmpresaRepository e, ClienteRepository c){ repo=r; empresas=e; clientes=c; }
   private Documento meu(Long id, Principal p){
     return repo.findByIdAndDono(id, p.getName()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
   }
@@ -43,14 +43,17 @@ public class DocumentoController {
     return "lista";
   }
   @GetMapping("/novo")
-  public String novo(@RequestParam(defaultValue="ORCAMENTO") Documento.Tipo tipo, Model m, Principal p){
+  public String novo(@RequestParam(defaultValue="ORCAMENTO") Documento.Tipo tipo, @RequestParam(required=false) Long cliente, Model m, Principal p){
     Documento d = new Documento(); d.setTipo(tipo);
     if (tipo==Documento.Tipo.RECIBO) d.setStatus("Emitido");
+    if (cliente != null) clientes.findByIdAndDono(cliente, p.getName()).ifPresent(c -> {
+      d.setCliente(c.getNome()); d.setCpfCnpj(c.getCpfCnpj()); d.setTelefone(c.getTelefone());
+    });
     for (int i=0;i<8;i++) d.getItens().add(new Item());
     m.addAttribute("d", d); m.addAttribute("empresa", empresaDe(p)); return "form";
   }
   @PostMapping("/salvar")
-  public String salvar(@ModelAttribute Documento d, Principal p){
+  public String salvar(@ModelAttribute Documento d, @RequestParam(defaultValue="false") boolean salvarCliente, Principal p){
     List<Item> ok = new ArrayList<>();
     for (Item i : d.getItens()) if (i.getDescricao()!=null && !i.getDescricao().isBlank()) {
       if (i.getQuantidade()==null) i.setQuantidade(1);
@@ -60,7 +63,21 @@ public class DocumentoController {
     }
     d.setItens(ok); d.setId(null); d.setDono(p.getName());
     d.setNumero(repo.maxNumero(d.getTipo(), p.getName())+1);
+    if (salvarCliente) guardarCliente(d, p.getName());
     return "redirect:/ver/" + repo.save(d).getId();
+  }
+  /** Cadastra o cliente do documento na base (se ainda não existir) ou completa os dados que estavam em branco. */
+  private void guardarCliente(Documento d, String dono){
+    String nome = ClienteController.limpa(d.getCliente(), 150);
+    if (nome == null) return;
+    String dig = Cliente.digitos(d.getCpfCnpj());
+    if (!dig.isEmpty() && dig.length() != 11 && dig.length() != 14) dig = "";
+    Optional<Cliente> achado = !dig.isEmpty() ? clientes.findFirstByDonoAndDocumento(dono, dig) : clientes.findFirstByDonoAndNomeIgnoreCase(dono, nome);
+    Cliente c = achado.orElseGet(() -> { Cliente n = new Cliente(); n.setDono(dono); n.setNome(nome); return n; });
+    if (c.getDocumento() == null && !dig.isEmpty()) c.setCpfCnpj(dig);
+    String tel = ClienteController.limpa(d.getTelefone(), 30);
+    if (tel != null && (c.getTelefone() == null || c.getTelefone().isBlank())) c.setTelefone(tel);
+    clientes.save(c);
   }
   @GetMapping("/ver/{id}")
   public String ver(@PathVariable Long id, Model m, Principal p){

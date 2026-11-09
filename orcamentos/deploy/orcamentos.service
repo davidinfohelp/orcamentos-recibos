@@ -1,0 +1,21 @@
+# Alternativa SEM Docker: roda o app.jar direto com systemd (reinicia sozinho e sobe no boot).
+# Instalação:
+#   sudo cp deploy/orcamentos.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now orcamentos
+# Logs:  journalctl -u orcamentos -f
+[Unit]
+Description=Orcamentos e Recibos
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+User=orcamentos
+WorkingDirectory=/opt/orcamentos
+EnvironmentFile=/opt/orcamentos/.env
+ExecStart=/usr/bin/java -Xmx384m -jar /opt/orcamentos/app.jar
+Restart=always
+RestartSec=5
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

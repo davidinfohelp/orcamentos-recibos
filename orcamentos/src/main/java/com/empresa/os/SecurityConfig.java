@@ -8,7 +8,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
   @Bean SecurityFilterChain chain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(a -> a.requestMatchers("/", "/login", "/registro", "/css/**", "/logo.png", "/error").permitAll().anyRequest().authenticated())
+    http.authorizeHttpRequests(a -> a.requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/logo.png", "/error").permitAll().anyRequest().authenticated())
         .formLogin(f -> f.loginPage("/login").defaultSuccessUrl("/", true).permitAll())
         .logout(l -> l.logoutSuccessUrl("/login?saiu"));
     return http.build();

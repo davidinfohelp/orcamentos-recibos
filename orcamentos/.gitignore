@@ -4,3 +4,4 @@ data/
 .vscode/
 *.mv.db
 *.trace.db
+.env

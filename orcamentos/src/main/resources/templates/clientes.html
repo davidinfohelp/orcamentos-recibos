@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clientes — Orçamentos e Recibos</title>
+<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="wrap">
+  <div class="topo">
+    <h1>Clientes</h1>
+    <div class="acoes">
+      <a class="btn s" th:href="@{/}">← Voltar ao painel</a>
+      <a class="btn" th:href="@{/clientes/novo}">+ Novo cliente</a>
+    </div>
+  </div>
+
+  <p class="ok-msg" th:if="${param.salvo}">Cliente salvo.</p>
+  <p class="ok-msg" th:if="${param.excluido}">Cliente excluído.</p>
+
+  <form class="bar" method="get" th:action="@{/clientes}">
+    <input name="q" th:value="${q}" placeholder="Buscar por nome, nome fantasia ou CPF/CNPJ">
+    <button>Buscar</button>
+  </form>
+
+  <div class="rolar" th:if="${!clientes.isEmpty()}">
+    <table>
+      <tr><th>Cliente</th><th>CPF / CNPJ</th><th>Telefone</th><th>Ações</th></tr>
+      <tr th:each="c : ${clientes}">
+        <td><b th:text="${c.nome}"></b><br th:if="${!#strings.isEmpty(c.nomeFantasia)}"><small class="mut" th:text="${c.nomeFantasia}"></small></td>
+        <td th:text="${c.cpfCnpj}"></td>
+        <td th:text="${c.telefone}"></td>
+        <td style="white-space:nowrap">
+          <a class="btn s" th:href="@{/novo(tipo=ORCAMENTO,cliente=${c.id})}">Orçamento</a>
+          <a class="btn s" th:href="@{/novo(tipo=RECIBO,cliente=${c.id})}">Recibo</a>
+          <a class="btn s" th:href="@{/clientes/{id}(id=${c.id})}">Editar</a>
+          <details>
+            <summary class="btn s d">Excluir</summary>
+            <form class="i" th:action="@{/clientes/{id}/excluir(id=${c.id})}" method="post">
+              <button class="s d">Confirmar exclusão</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="mut" th:if="${clientes.isEmpty() and #strings.isEmpty(q)}">Nenhum cliente cadastrado ainda. Clique em <b>+ Novo cliente</b> e digite o CNPJ para buscar os dados automaticamente.</p>
+  <p class="mut" th:if="${clientes.isEmpty() and !#strings.isEmpty(q)}">Nenhum cliente encontrado para essa busca.</p>
+</div>
+</body>
+</html>

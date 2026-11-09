@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title th:text="${c.id == null} ? 'Novo cliente' : 'Editar cliente'">Cliente</title>
+<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="wrap">
+  <div class="topo">
+    <h1 th:text="${c.id == null} ? 'Novo cliente' : 'Editar cliente'"></h1>
+    <a class="btn s" th:href="@{/clientes}">← Voltar aos clientes</a>
+  </div>
+
+  <p class="e" th:if="${erro}" th:text="${erro}"></p>
+
+  <form th:action="@{/clientes/salvar}" method="post">
+    <input type="hidden" name="id" th:value="${c.id}">
+    <div class="card">
+      <label for="cpfCnpj">CPF / CNPJ</label>
+      <div class="linha">
+        <input id="cpfCnpj" name="cpfCnpj" th:value="${c.cpfCnpj}" inputmode="numeric" maxlength="18" placeholder="Digite o CNPJ e clique em Buscar">
+        <button type="button" id="btnCnpj" class="s">Buscar CNPJ</button>
+      </div>
+      <p class="mut" id="msgCnpj" style="margin:6px 0 0;font-size:13px">Com CNPJ, os dados são preenchidos automaticamente a partir da Receita Federal.</p>
+
+      <div class="g" style="margin-top:14px">
+        <div><label for="nome">Nome / razão social *</label><input id="nome" name="nome" th:value="${c.nome}" maxlength="150" required></div>
+        <div><label for="nomeFantasia">Nome fantasia</label><input id="nomeFantasia" name="nomeFantasia" th:value="${c.nomeFantasia}" maxlength="150"></div>
+        <div><label for="telefone">Telefone / WhatsApp</label><input id="telefone" name="telefone" th:value="${c.telefone}" maxlength="30"></div>
+        <div><label for="email">E-mail</label><input id="email" name="email" type="email" th:value="${c.email}" maxlength="120"></div>
+        <div><label for="situacao">Situação na Receita</label><input id="situacao" name="situacao" th:value="${c.situacao}" maxlength="40"></div>
+      </div>
+      <div style="margin-top:12px"><label for="endereco">Endereço</label><input id="endereco" name="endereco" th:value="${c.endereco}" maxlength="250"></div>
+      <div style="margin-top:12px"><label for="observacoes">Observações</label><textarea id="observacoes" name="observacoes" rows="3" maxlength="1000" th:text="${c.observacoes}"></textarea></div>
+    </div>
+    <p><button>Salvar cliente</button> <a class="btn s" th:href="@{/clientes}">Cancelar</a></p>
+  </form>
+</div>
+<script th:src="@{/js/cpfcnpj.js}"></script>
+<script>
+(function () {
+  function el(id) { return document.getElementById(id); }
+  var doc = el('cpfCnpj'), btn = el('btnCnpj'), msg = el('msgCnpj');
+  CpfCnpj.mascara(doc);
+  function buscar() {
+    msg.className = 'mut'; msg.textContent = 'Consultando...'; btn.disabled = true;
+    CpfCnpj.consultar(doc.value).then(function (d) {
+      ['nome', 'nomeFantasia', 'telefone', 'email', 'endereco', 'situacao'].forEach(function (k) { if (d[k]) el(k).value = d[k]; });
+      doc.value = d.cpfCnpj || doc.value;
+      msg.className = 'ok'; msg.textContent = 'Dados preenchidos. Confira e clique em Salvar cliente.';
+      if (d.situacao && d.situacao.toUpperCase() !== 'ATIVA') { msg.className = 'e'; msg.textContent = 'Atenção: situação na Receita: ' + d.situacao + '.'; }
+    }).catch(function (e) { msg.className = 'e'; msg.textContent = e.message; })
+      .finally(function () { btn.disabled = false; });
+  }
+  btn.addEventListener('click', buscar);
+  doc.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); buscar(); } });
+})();
+</script>
+</body>
+</html>

@@ -132,3 +132,15 @@ summary{list-style:none}summary::-webkit-details-marker{display:none}
   .papel{box-shadow:none;border-radius:0;padding:0;margin:0}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ===== clientes ===== */
+.linha{display:flex;gap:8px}
+.linha input{flex:1}
+.linha button{flex:none;white-space:nowrap}
+.busca-cli{position:relative;margin-bottom:12px}
+.sug{position:absolute;left:0;right:0;top:100%;z-index:20;margin-top:4px;background:#0b1222;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 18px 40px -12px rgba(0,0,0,.7)}
+.sug button{display:block;width:100%;text-align:left;background:none;color:var(--txt);border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 12px;font-weight:400}
+.sug button:last-child{border-bottom:0}
+.sug button:hover,.sug button:focus{background:var(--card2);transform:none;box-shadow:none}
+.sug small{color:var(--mut)}
+.sug .vazio{padding:10px 12px;color:var(--mut);font-size:14px}
