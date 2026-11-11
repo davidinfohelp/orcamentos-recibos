@@ -15,10 +15,18 @@ e não aceita conexões de outras máquinas. Nada é enviado para a internet.
 Os dados ficam na pasta "dados", criada ao lado do app.jar.
 
 PRIMEIRA VEZ
-1. Precisa do Java 17 ou mais novo. Se não tiver, instale o "Temurin 17" (ou 21) em
-   https://adoptium.net/ (no Windows, escolha o instalador .msi).
-2. Deixe app.jar, iniciar.bat e este arquivo juntos em uma pasta, por exemplo
-   C:\Indicadores
+1. Precisa do Java 17 ou mais novo. NÃO precisa instalar: use o Java portátil.
+   - Acesse https://adoptium.net/temurin/releases/?version=17&os=windows&arch=x64&package=jre
+   - Baixe o arquivo .ZIP (não o .msi) do JRE 17 para Windows x64.
+   - Extraia esse zip DENTRO da pasta do programa. Vai aparecer uma pasta com
+     nome parecido com "jdk-17.0.13+11-jre". Pode deixar o nome como está.
+   O iniciar.bat usa primeiro esse Java da pasta; só se não houver, usa o do
+   computador. (Se o computador tiver Java 8, ele é ignorado com aviso.)
+2. A pasta deve ficar assim, por exemplo em C:\Indicadores:
+      app.jar
+      iniciar.bat
+      LEIA-ME.txt
+      jdk-17.0.13+11-jre\   (o Java portátil)
 
 TODO MÊS
 1. Dê dois cliques em iniciar.bat. O navegador abre sozinho no programa.
