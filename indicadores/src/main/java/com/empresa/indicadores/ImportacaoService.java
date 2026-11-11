@@ -1,7 +1,6 @@
 package com.empresa.indicadores;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.io.InputStream;
 import java.util.*;
 
 @Service
@@ -22,9 +21,9 @@ public class ImportacaoService {
    * Se já existir importação da mesma área no mesmo mês, ela é substituída.
    */
   @Transactional
-  public Retorno importar(InputStream in, String arquivo, Integer ano, Integer mes) throws Exception {
+  public Retorno importar(LeitorPlanilha.Fonte fonte, String arquivo, Integer ano, Integer mes) throws Exception {
     Retorno ret = new Retorno(); ret.arquivo = arquivo;
-    LeitorPlanilha.Resultado res = leitor.ler(in, arquivo);
+    LeitorPlanilha.Resultado res = leitor.ler(fonte, arquivo, mes);
     ret.area = res.area;
     int a = ano != null ? ano : res.ano != null ? res.ano : java.time.LocalDate.now().getYear();
     int m = mes != null ? mes : res.mes != null ? res.mes : 0;
@@ -39,7 +38,7 @@ public class ImportacaoService {
 
     Importacao imp = new Importacao();
     imp.setArea(res.area); imp.setAno(a); imp.setMes(m); imp.setArquivo(arquivo); imp.setAba(res.aba);
-    imp.setLinhas(res.registros.size()); imp.setIgnoradas(res.ignoradas);
+    imp.setLinhas(res.registros.size()); imp.setIgnoradas(res.ignoradas); imp.setOutrosMeses(res.outrosMeses);
     imps.save(imp);
     for (Registro r : res.registros) r.setImportacao(imp);
     regs.saveAll(res.registros);

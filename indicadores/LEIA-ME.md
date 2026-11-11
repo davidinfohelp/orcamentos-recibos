@@ -23,7 +23,10 @@ registros e mostra os indicadores (por classificação, faixa de prazo, grupo) c
 |---|---|---|---|---|
 | Fornecedor | RESUMO | `Supplier -> id`, `NewColumn.Classificação`, `Prazo` | `NewColumn.Classificação` | `Prazo` ("Mais de ..." = fora) |
 | Cliente | RESUMO | `Cód. do Cliente`, `Processo`, duas colunas `Indicador` | 1ª `Indicador` | 2ª `Indicador` ("Mais de ..." = fora) |
-| Material | Lista | `IdSIN`, `Tipo material`, `Indicador`, `Classificação` | `Classificação` | `Indicador` (Dentro/Fora do Prazo) |
+| Material (formato antigo) | Lista | `IdSIN`, `Tipo material`, `Indicador`, `Classificação` | `Classificação` | `Indicador` (Dentro/Fora do Prazo) |
+| Material (formato novo) | BD (ou BASE) | `IdSIN`, `Tipo de Material`, `Indicador`, `Classificação`, `Prazo Limite` | `Classificação` | `Indicador`; só entram linhas cuja coluna sem título após `Prazo Limite` (coluna R, mês de apuração) = mês de referência |
 
-Mês de referência: nome do mês no arquivo → coluna `MÊS` → datas de finalização (texto) → datas (célula),
+Se BASE e BD existirem, usa a BD (é a que tem a coluna R ajustada para pendentes).
+
+Mês de referência: nome do mês no arquivo → coluna de mês de apuração (R) → coluna `MÊS` → datas de finalização (texto) → datas (célula),
 ou o mês escolhido na tela. Datas de célula com dia/mês trocados (comum nessas exportações) são corrigidas.

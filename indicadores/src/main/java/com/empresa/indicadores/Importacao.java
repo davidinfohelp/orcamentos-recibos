@@ -11,6 +11,8 @@ public class Importacao {
   private String arquivo; private String aba;
   private LocalDateTime importadoEm = LocalDateTime.now();
   private int linhas; private int ignoradas;
+  /** Linhas de outros meses de apuração que não entraram (formato BD). Pode ser nulo em bases antigas. */
+  private Integer outrosMeses;
 
   public Long getId(){return id;}
   public Area getArea(){return area;} public void setArea(Area a){area=a;}
@@ -21,5 +23,6 @@ public class Importacao {
   public LocalDateTime getImportadoEm(){return importadoEm;}
   public int getLinhas(){return linhas;} public void setLinhas(int l){linhas=l;}
   public int getIgnoradas(){return ignoradas;} public void setIgnoradas(int i){ignoradas=i;}
+  public int getOutrosMeses(){return outrosMeses == null ? 0 : outrosMeses;} public void setOutrosMeses(Integer o){outrosMeses=o;}
   public String getPeriodo(){ return Meses.nome(mes) + "/" + ano; }
 }

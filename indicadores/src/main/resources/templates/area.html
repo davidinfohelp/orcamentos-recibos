@@ -7,7 +7,7 @@
   <div class="linha">
     <div>
       <h1 th:text="${area.nome} + ' — ' + ${imp.periodo}"></h1>
-      <span class="mut" th:text="'Arquivo: ' + ${imp.arquivo} + ' · aba ' + ${imp.aba} + ' · ' + ${imp.linhas} + ' solicitações' + (${imp.ignoradas} > 0 ? ' · ' + ${imp.ignoradas} + ' linhas sem indicador ignoradas' : '')"></span>
+      <span class="mut" th:text="'Arquivo: ' + ${imp.arquivo} + ' · aba ' + ${imp.aba} + ' · ' + ${imp.linhas} + ' solicitações' + (${imp.ignoradas} > 0 ? ' · ' + ${imp.ignoradas} + ' linhas sem indicador ignoradas' : '') + (${imp.outrosMeses} > 0 ? ' · ' + ${imp.outrosMeses} + ' linhas de outros meses de apuração fora' : '')"></span>
     </div>
     <div class="noprint" style="display:flex;gap:8px">
       <a class="btn s" th:href="@{/(ano=${ano},mes=${mes})}">← Painel</a>

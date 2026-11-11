@@ -5,13 +5,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Controller
 public class PainelController {
+  private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PainelController.class);
   private final ImportacaoRepository imps; private final RegistroRepository regs;
   private final Indicadores ind; private final ImportacaoService service;
   public PainelController(ImportacaoRepository i, RegistroRepository r, Indicadores in, ImportacaoService s){ imps = i; regs = r; ind = in; service = s; }
@@ -111,9 +111,13 @@ public class PainelController {
     for (MultipartFile f : arquivos) {
       if (f.isEmpty()) continue;
       ImportacaoService.Retorno r;
-      try (InputStream in = f.getInputStream()) { r = service.importar(in, f.getOriginalFilename(), ano, mes); }
+      try { r = service.importar(f::getInputStream, f.getOriginalFilename(), ano, mes); }
       catch (IllegalArgumentException e) { r = new ImportacaoService.Retorno(); r.arquivo = f.getOriginalFilename(); r.erro = e.getMessage(); }
-      catch (Exception e) { r = new ImportacaoService.Retorno(); r.arquivo = f.getOriginalFilename(); r.erro = "Não foi possível ler o arquivo (" + e.getClass().getSimpleName() + "). Ele é um .xlsx válido?"; }
+      catch (Exception e) {
+        log.error("Falha ao importar " + f.getOriginalFilename(), e);
+        r = new ImportacaoService.Retorno(); r.arquivo = f.getOriginalFilename();
+        r.erro = "Não foi possível ler o arquivo (" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : "") + "). Ele é um .xlsx válido? Detalhes na janela preta do programa.";
+      }
       rets.add(r);
     }
     if (rets.isEmpty()) { model.addAttribute("erro", "Escolha pelo menos um arquivo .xlsx."); model.addAttribute("vazio", imps.count() == 0); return "importar"; }

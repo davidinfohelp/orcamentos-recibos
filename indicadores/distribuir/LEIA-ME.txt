@@ -48,11 +48,14 @@ Usa o prazo que já vem calculado nas planilhas:
   - Fornecedor e Cliente: coluna Prazo/Indicador. "Mais de 48/72 horas úteis" = fora
     do prazo; as outras faixas = dentro do prazo. % = (total - fora) / total.
   - Material: coluna Indicador ("Dentro do Prazo" / "Fora do Prazo").
+    Formato novo (abas BASE e BD): usa a aba BD e só conta as linhas cuja
+    coluna R (mês de apuração, logo depois de "Prazo Limite") é o mês importado,
+    igual ao quadro de resumo da própria aba BD.
   - Inclusão/Manutenção vem da coluna Classificação (no cliente, a 1ª coluna "Indicador").
 Linhas sem classificação ou sem prazo são ignoradas (o programa mostra quantas).
 
 A planilha precisa manter o cabeçalho original: aba RESUMO (fornecedor e cliente)
-e aba Lista (material). Se a planilha mudar de formato, ela não será reconhecida
+e aba Lista ou BD (material). Se a planilha mudar de formato, ela não será reconhecida
 e o programa avisa.
 
 Porta diferente: se a 8765 estiver ocupada, edite iniciar.bat e troque a última

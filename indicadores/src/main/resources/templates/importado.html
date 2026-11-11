@@ -16,6 +16,7 @@
       <span th:text="${r.importacao.linhas} + ' solicitações importadas para ' + ${r.importacao.periodo}"></span>
       <span class="mut" th:text="'(mês: ' + ${r.origemMes} + '; aba ' + ${r.importacao.aba} + ')'"></span>
       <div class="mut" th:if="${r.importacao.ignoradas > 0}" th:text="${r.importacao.ignoradas} + ' linhas sem classificação/prazo foram ignoradas.'"></div>
+      <div class="mut" th:if="${r.importacao.outrosMeses > 0}" th:text="${r.importacao.outrosMeses} + ' linhas de outros meses de apuração (coluna R da aba ' + ${r.importacao.aba} + ') não entraram neste mês.'"></div>
       <div class="mut" th:if="${r.substituiu}">Substituiu a importação anterior desse mês.</div>
       <p class="msg warn" style="margin:8px 0 0" th:if="${r.aviso != null}" th:text="${r.aviso}"></p>
     </div>
