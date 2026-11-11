@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Erro')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('')}"></header>
+<div class="wrap" style="max-width:700px">
+  <h1>Ops, algo deu errado</h1>
+  <p class="msg bad" th:text="${message != null and !#strings.isEmpty(message)} ? ${message} : 'Erro ' + ${status}"></p>
+  <a class="btn" th:href="@{/}">Voltar ao painel</a>
+</div>
+</body>
+</html>

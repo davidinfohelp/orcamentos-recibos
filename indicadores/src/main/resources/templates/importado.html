@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Resultado da importação')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('importar')}"></header>
+<div class="wrap" style="max-width:860px">
+  <h1 style="margin-bottom:14px">Resultado da importação</h1>
+  <div class="card" style="margin-bottom:12px" th:each="r : ${rets}">
+    <div class="linha" style="margin-bottom:6px">
+      <b th:text="${r.arquivo}"></b>
+      <span th:if="${r.erro == null}" class="tag ok" th:text="'Identificado: ' + ${r.area.nome}"></span>
+      <span th:if="${r.erro != null}" class="tag bad">Não importado</span>
+    </div>
+    <p class="msg bad" style="margin:6px 0 0" th:if="${r.erro != null}" th:text="${r.erro}"></p>
+    <div th:if="${r.erro == null}">
+      <span th:text="${r.importacao.linhas} + ' solicitações importadas para ' + ${r.importacao.periodo}"></span>
+      <span class="mut" th:text="'(mês: ' + ${r.origemMes} + '; aba ' + ${r.importacao.aba} + ')'"></span>
+      <div class="mut" th:if="${r.importacao.ignoradas > 0}" th:text="${r.importacao.ignoradas} + ' linhas sem classificação/prazo foram ignoradas.'"></div>
+      <div class="mut" th:if="${r.substituiu}">Substituiu a importação anterior desse mês.</div>
+      <p class="msg warn" style="margin:8px 0 0" th:if="${r.aviso != null}" th:text="${r.aviso}"></p>
+    </div>
+  </div>
+  <p>
+    <a class="btn" th:if="${ano != null}" th:href="@{/(ano=${ano},mes=${mes})}">Ver resultados</a>
+    <a class="btn s" th:href="@{/importar}">Importar mais arquivos</a>
+  </p>
+</div>
+</body>
+</html>

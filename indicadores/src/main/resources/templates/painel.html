@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Painel')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('painel')}"></header>
+<div class="wrap">
+  <div class="linha">
+    <h1 th:text="'Resultado de ' + ${rotulo}"></h1>
+    <form method="get" th:action="@{/}" class="noprint" id="fp">
+      <input type="hidden" name="ano" id="fa"><input type="hidden" name="mes" id="fm">
+      <select id="per" aria-label="Mês">
+        <option th:each="p : ${periodos}" th:value="${p.valor}" th:text="${p.rotulo}" th:selected="${p.valor == atual}"></option>
+      </select>
+    </form>
+  </div>
+
+  <div class="cards">
+    <div class="card" th:each="c : ${cards}">
+      <h2><span th:text="${c.area.nome}"></span>
+        <a th:if="${c.imp != null}" class="btn s" style="padding:5px 10px;font-size:13px" th:href="@{/area/{a}(a=${c.area},ano=${ano},mes=${mes})}">Detalhes →</a></h2>
+      <p class="vazio" th:if="${c.imp == null}">Nenhuma planilha de <span th:text="${#strings.toLowerCase(c.area.nome)}"></span> importada neste mês. <a th:href="@{/importar}">Importar</a></p>
+      <div class="ind" th:each="l : ${c.linhas}">
+        <div style="flex:1;margin-right:16px">
+          <strong th:text="${l.nome}"></strong>
+          <small th:text="${l.total} + ' solicitações · ' + ${l.dentro} + ' no prazo · ' + ${l.fora} + ' fora'"></small>
+          <div class="barra"><i th:style="'width:' + ${#numbers.formatDecimal(l.pct,1,'POINT',2,'POINT')} + '%'"></i></div>
+        </div>
+        <b th:text="${#numbers.formatDecimal(l.pct,1,'POINT',2,'COMMA')} + '%'"></b>
+      </div>
+    </div>
+  </div>
+
+  <h2>Histórico mês a mês <span class="mut" style="font-weight:400;font-size:14px">(% dentro do prazo)</span></h2>
+  <div class="tab">
+    <table>
+      <tr><th>Mês</th><th th:each="a : ${areas}" th:text="${a.nome}"></th></tr>
+      <tr th:each="h : ${historico}">
+        <td><a th:href="@{/(ano=${h.ano},mes=${h.mes})}" th:text="${h.rotulo}"></a></td>
+        <td th:each="a : ${areas}">
+          <span th:if="${h.areas.get(a) == null}" class="mut">—</span>
+          <div th:each="l : ${h.areas.get(a)}"><span class="mut" th:text="${l.nome} + ': '"></span><b th:text="${#numbers.formatDecimal(l.pct,1,'POINT',2,'COMMA')} + '%'"></b> <small class="mut" th:text="'(' + ${l.total} + ')'"></small></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+<script>
+document.getElementById('per').addEventListener('change', function () {
+  var p = this.value.split('-'); document.getElementById('fa').value = p[0]; document.getElementById('fm').value = p[1];
+  document.getElementById('fp').submit();
+});
+</script>
+</body>
+</html>

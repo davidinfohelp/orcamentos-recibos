@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Importações')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('importacoes')}"></header>
+<div class="wrap">
+  <div class="linha"><h1>Importações</h1><a class="btn" th:href="@{/importar}">Importar planilhas</a></div>
+  <p class="msg ok" th:if="${ok}" th:text="${ok}"></p>
+  <p class="vazio" th:if="${imps.isEmpty()}">Nada importado ainda.</p>
+  <div class="tab" th:if="${!imps.isEmpty()}">
+    <table>
+      <tr><th>Mês</th><th>Área</th><th>Arquivo</th><th class="r">Solicitações</th><th>Importado em</th><th></th></tr>
+      <tr th:each="i : ${imps}">
+        <td th:text="${i.periodo}"></td>
+        <td><a th:href="@{/area/{a}(a=${i.area},ano=${i.ano},mes=${i.mes})}" th:text="${i.area.nome}"></a></td>
+        <td th:text="${i.arquivo}"></td>
+        <td class="r" th:text="${i.linhas}"></td>
+        <td th:text="${#temporals.format(i.importadoEm,'dd/MM/yyyy HH:mm')}"></td>
+        <td class="r">
+          <details><summary class="btn s d" style="padding:5px 10px;font-size:13px">Excluir</summary>
+            <form th:action="@{/importacoes/{id}/excluir(id=${i.id})}" method="post" style="margin-top:6px"><button class="s d" style="padding:5px 10px;font-size:13px">Confirmar</button></form>
+          </details>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head('Importar planilhas')}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('importar')}"></header>
+<div class="wrap" style="max-width:760px">
+  <h1 style="margin-bottom:6px">Importar planilhas do mês</h1>
+  <p class="mut" style="margin-top:0">Selecione as planilhas de <b>fornecedor</b>, <b>cliente</b> e <b>material</b> (pode ser todas de uma vez).
+    O programa descobre sozinho qual é qual pelas colunas e separa os resultados. Os arquivos ficam só neste computador.</p>
+  <div class="msg warn" th:if="${vazio}">Ainda não há nada importado. Comece pelas planilhas do último mês.</div>
+  <p class="msg bad" th:if="${erro}" th:text="${erro}"></p>
+
+  <form th:action="@{/importar}" method="post" enctype="multipart/form-data" id="f">
+    <div class="card">
+      <label class="drop" id="drop" for="arq">
+        <b style="font-size:16px;color:var(--txt)">Clique para escolher ou arraste os arquivos .xlsx aqui</b><br>
+        <span id="nomes" class="mut">Nenhum arquivo escolhido</span>
+      </label>
+      <input type="file" id="arq" name="arquivos" accept=".xlsx" multiple hidden required>
+      <div style="margin-top:16px">
+        <label for="periodo">Mês de referência</label>
+        <input type="month" id="periodo" name="periodo">
+        <span class="mut" style="font-size:13px">Deixe em branco para detectar automaticamente (pelo nome do arquivo ou pelas datas).</span>
+      </div>
+      <p class="mut" style="font-size:13px;margin-bottom:0">Se você importar de novo a mesma área no mesmo mês, a importação anterior é substituída.</p>
+    </div>
+    <p><button id="btn">Importar e calcular</button> <span id="aguarde" class="mut" hidden>Processando… planilhas grandes podem levar alguns segundos.</span></p>
+  </form>
+</div>
+<script>
+(function () {
+  var arq = document.getElementById('arq'), drop = document.getElementById('drop'), nomes = document.getElementById('nomes');
+  function mostrar() { nomes.textContent = arq.files.length ? Array.prototype.map.call(arq.files, function (x) { return x.name; }).join(' · ') : 'Nenhum arquivo escolhido'; }
+  arq.addEventListener('change', mostrar);
+  ['dragenter', 'dragover'].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add('on'); }); });
+  ['dragleave', 'drop'].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove('on'); }); });
+  drop.addEventListener('drop', function (ev) { arq.files = ev.dataTransfer.files; mostrar(); });
+  document.getElementById('f').addEventListener('submit', function (ev) {
+    if (!arq.files.length) { ev.preventDefault(); alert('Escolha pelo menos um arquivo .xlsx.'); return; }
+    document.getElementById('btn').disabled = true; document.getElementById('aguarde').hidden = false;
+  });
+})();
+</script>
+</body>
+</html>

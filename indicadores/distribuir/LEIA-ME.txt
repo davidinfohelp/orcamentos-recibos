@@ -1,0 +1,51 @@
+INDICADORES DE CADASTRO (Fornecedor, Cliente e Material)
+=========================================================
+
+O QUE FAZ
+Você importa as planilhas do mês (RESUMO FORNECEDOR, RESUMO CLIENTE e a de Material).
+O programa descobre sozinho qual é qual pelas colunas, separa os dados e mostra:
+  - % dentro do prazo de Inclusão e Manutenção de cada área;
+  - quantidade por faixa de prazo (Mesmo dia, 24h úteis, 48h úteis, Mais de 72h...);
+  - detalhamento por processo (cliente), tarefa (fornecedor) e tipo de material;
+  - a lista das solicitações fora do prazo;
+  - histórico mês a mês.
+
+TUDO É LOCAL: o programa roda só no seu computador (endereço http://localhost:8765)
+e não aceita conexões de outras máquinas. Nada é enviado para a internet.
+Os dados ficam na pasta "dados", criada ao lado do app.jar.
+
+PRIMEIRA VEZ
+1. Precisa do Java 17 ou mais novo. Se não tiver, instale o "Temurin 17" (ou 21) em
+   https://adoptium.net/ (no Windows, escolha o instalador .msi).
+2. Deixe app.jar, iniciar.bat e este arquivo juntos em uma pasta, por exemplo
+   C:\Indicadores
+
+TODO MÊS
+1. Dê dois cliques em iniciar.bat. O navegador abre sozinho no programa.
+2. Clique em "Importar planilhas", escolha (ou arraste) os 3 arquivos .xlsx do mês
+   e clique em "Importar e calcular".
+   - O mês é detectado sozinho (pelo nome do arquivo, coluna MÊS ou datas).
+     Se quiser, escolha o mês no campo "Mês de referência".
+   - Importar de novo a mesma área no mesmo mês substitui a anterior.
+3. Veja o resultado no Painel. Em "Detalhes" de cada área há a lista do que ficou
+   fora do prazo e o botão "Baixar Excel (CSV)" com todas as linhas.
+4. Para encerrar, feche a janela preta do iniciar.bat.
+
+BACKUP
+Copie a pasta "dados" (com o programa fechado) para um pendrive ou rede.
+Para restaurar, coloque a pasta "dados" de volta ao lado do app.jar.
+
+REGRA DO INDICADOR
+Usa o prazo que já vem calculado nas planilhas:
+  - Fornecedor e Cliente: coluna Prazo/Indicador. "Mais de 48/72 horas úteis" = fora
+    do prazo; as outras faixas = dentro do prazo. % = (total - fora) / total.
+  - Material: coluna Indicador ("Dentro do Prazo" / "Fora do Prazo").
+  - Inclusão/Manutenção vem da coluna Classificação (no cliente, a 1ª coluna "Indicador").
+Linhas sem classificação ou sem prazo são ignoradas (o programa mostra quantas).
+
+A planilha precisa manter o cabeçalho original: aba RESUMO (fornecedor e cliente)
+e aba Lista (material). Se a planilha mudar de formato, ela não será reconhecida
+e o programa avisa.
+
+Porta diferente: se a 8765 estiver ocupada, edite iniciar.bat e troque a última
+linha por:  java -Xmx512m -jar app.jar --server.port=8766

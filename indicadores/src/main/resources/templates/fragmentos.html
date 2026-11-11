@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title th:text="${titulo} + ' — Indicadores de Cadastro'">Indicadores</title>
+<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topo" th:fragment="topo(ativo)">
+  <div class="in">
+    <a class="marca" th:href="@{/}"><span>%</span> Indicadores de Cadastro</a>
+    <nav>
+      <a th:href="@{/}" th:classappend="${ativo=='painel'} ? 'on'">Painel</a>
+      <a th:href="@{/importar}" th:classappend="${ativo=='importar'} ? 'on'">Importar planilhas</a>
+      <a th:href="@{/importacoes}" th:classappend="${ativo=='importacoes'} ? 'on'">Importações</a>
+    </nav>
+  </div>
+</header>
+</body>
+</html>

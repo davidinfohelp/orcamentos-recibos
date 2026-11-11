@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: head(${area.nome})}"></head>
+<body>
+<header th:replace="~{fragmentos :: topo('painel')}"></header>
+<div class="wrap">
+  <div class="linha">
+    <div>
+      <h1 th:text="${area.nome} + ' — ' + ${imp.periodo}"></h1>
+      <span class="mut" th:text="'Arquivo: ' + ${imp.arquivo} + ' · aba ' + ${imp.aba} + ' · ' + ${imp.linhas} + ' solicitações' + (${imp.ignoradas} > 0 ? ' · ' + ${imp.ignoradas} + ' linhas sem indicador ignoradas' : '')"></span>
+    </div>
+    <div class="noprint" style="display:flex;gap:8px">
+      <a class="btn s" th:href="@{/(ano=${ano},mes=${mes})}">← Painel</a>
+      <a class="btn s" th:href="@{/area/{a}/csv(a=${area},ano=${ano},mes=${mes})}">Baixar Excel (CSV)</a>
+      <button class="s" onclick="window.print()">Imprimir</button>
+    </div>
+  </div>
+
+  <h2>Indicador por faixa de prazo</h2>
+  <div class="tab">
+    <table>
+      <tr><th>Classificação</th><th class="r">Total</th><th class="r" th:each="f : ${faixas}" th:text="${f}"></th><th class="r" th:if="${mostrarFora}">Fora do prazo</th><th class="r">% no prazo</th></tr>
+      <tr th:each="c : ${classes}">
+        <td><b th:text="${c.nome}"></b></td>
+        <td class="r" th:text="${c.total}"></td>
+        <td class="r" th:each="f : ${faixas}" th:text="${c.faixas.get(f)}"></td>
+        <td class="r" th:if="${mostrarFora}" th:text="${c.fora}"></td>
+        <td class="r"><b th:text="${#numbers.formatDecimal(c.pct,1,'POINT',2,'COMMA')} + '%'"></b></td>
+      </tr>
+    </table>
+  </div>
+
+  <h2 th:text="'Por ' + ${#strings.toLowerCase(area.grupo)}"></h2>
+  <div class="tab">
+    <table>
+      <tr><th>Classificação</th><th th:text="${area.grupo}"></th><th class="r">Total</th><th class="r">No prazo</th><th class="r">Fora</th><th class="r">% no prazo</th></tr>
+      <tr th:each="g : ${grupos}">
+        <td th:text="${g.classificacao}"></td><td th:text="${g.nome}"></td>
+        <td class="r" th:text="${g.total}"></td><td class="r" th:text="${g.dentro}"></td><td class="r" th:text="${g.fora}"></td>
+        <td class="r" th:text="${#numbers.formatDecimal(g.pct,1,'POINT',2,'COMMA')} + '%'"></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="linha">
+    <h2 style="margin:0" th:text="${ver == 'todos'} ? 'Todas as solicitações (' + ${totalLista} + ')' : 'Solicitações fora do prazo (' + ${totalLista} + ')'"></h2>
+    <div class="noprint">
+      <a class="btn s" th:if="${ver != 'todos'}" th:href="@{/area/{a}(a=${area},ano=${ano},mes=${mes},ver='todos')}">Ver todas</a>
+      <a class="btn s" th:if="${ver == 'todos'}" th:href="@{/area/{a}(a=${area},ano=${ano},mes=${mes})}">Ver só fora do prazo</a>
+      <input id="filtro" placeholder="Filtrar a lista..." style="margin-left:6px">
+    </div>
+  </div>
+  <p class="mut" th:if="${totalLista > 3000}">Mostrando as 3.000 primeiras. Use "Baixar Excel" para ver todas.</p>
+  <p class="vazio" th:if="${totalLista == 0}">Nenhuma solicitação fora do prazo neste mês. 🎉</p>
+  <div class="tab" th:if="${totalLista > 0}">
+    <table id="lista">
+      <tr><th>Solicitação</th><th>Classificação</th><th th:text="${area.grupo}"></th><th>Faixa</th><th>Descrição</th><th>Responsável</th><th>Início</th><th>Fim</th><th>Obs.</th></tr>
+      <tr th:each="r : ${lista}">
+        <td th:text="${r.solicitacao}"></td>
+        <td th:text="${r.classificacao}"></td>
+        <td th:text="${r.grupo}"></td>
+        <td><span class="tag" th:classappend="${r.dentroPrazo} ? 'ok' : 'bad'" th:text="${r.faixa}"></span></td>
+        <td th:text="${r.descricao}"></td>
+        <td th:text="${r.responsavel}"></td>
+        <td style="white-space:nowrap" th:text="${r.inicio != null} ? ${#temporals.format(r.inicio,'dd/MM/yyyy HH:mm')} : ''"></td>
+        <td style="white-space:nowrap" th:text="${r.fim != null} ? ${#temporals.format(r.fim,'dd/MM/yyyy HH:mm')} : ''"></td>
+        <td th:text="${r.extra}"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+<script>
+(function () {
+  var f = document.getElementById('filtro'), t = document.getElementById('lista');
+  if (!f || !t) return;
+  f.addEventListener('input', function () {
+    var q = f.value.toLowerCase();
+    for (var i = 1; i < t.rows.length; i++) t.rows[i].style.display = t.rows[i].textContent.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+  });
+})();
+</script>
+</body>
+</html>
